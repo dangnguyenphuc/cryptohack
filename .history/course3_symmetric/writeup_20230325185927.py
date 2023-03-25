@@ -191,10 +191,9 @@ state = [
 We've provided code to perform MixColumns and the forward ShiftRows operation. After implementing inv_shift_rows, take the state, run inv_mix_columns on it, then inv_shift_rows, convert to bytes and you will have your flag.
 '''
 
-key = (inv_shift_rows(inv_mix_columns(state)))
-print(matrix2bytes(key))
+# key = (inv_shift_rows(inv_mix_columns(state)))
+# print(matrix2bytes(key))
 
 
 # Bringing It All Together
-
 

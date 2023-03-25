@@ -136,13 +136,13 @@ def shift_rows(s):
     s[0][1], s[1][1], s[2][1], s[3][1] = s[1][1], s[2][1], s[3][1], s[0][1]
     s[0][2], s[1][2], s[2][2], s[3][2] = s[2][2], s[3][2], s[0][2], s[1][2]
     s[0][3], s[1][3], s[2][3], s[3][3] = s[3][3], s[0][3], s[1][3], s[2][3]
-    return s
 
 
 def inv_shift_rows(s):
-    s[1][1], s[2][1], s[3][1], s[0][1] = s[0][1], s[1][1], s[2][1], s[3][1]
-    s[2][2], s[3][2], s[0][2], s[1][2] = s[0][2], s[1][2], s[2][2], s[3][2]
-    s[3][3], s[0][3], s[1][3], s[2][3] = s[0][3], s[1][3], s[2][3], s[3][3]
+    for i in range(len(s)):
+        temp = s[i]
+        for a in range(len(temp)):
+            s[i][a] = temp[a-i]
     return s
 
 # learned from http://cs.ucsb.edu/~koc/cs178/projects/JT/aes.c
@@ -176,7 +176,6 @@ def inv_mix_columns(s):
         s[i][3] ^= v
 
     s = mix_columns(s)
-    print(s)
     return s
 
 
@@ -193,8 +192,4 @@ We've provided code to perform MixColumns and the forward ShiftRows operation. A
 
 key = (inv_shift_rows(inv_mix_columns(state)))
 print(matrix2bytes(key))
-
-
-# Bringing It All Together
-
 

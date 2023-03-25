@@ -194,7 +194,3 @@ We've provided code to perform MixColumns and the forward ShiftRows operation. A
 key = (inv_shift_rows(inv_mix_columns(state)))
 print(matrix2bytes(key))
 
-
-# Bringing It All Together
-
-
