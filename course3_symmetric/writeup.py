@@ -54,14 +54,12 @@ def matrix2bytes(matrix):
 #     [253, 48, 187, 78],
 # ]
 
-
 def add_round_key(s, k):
     assert len(s)==len(k), "States and Key are not same size!!!"
     key = []
-    for i in range(len(state)):
-        key.append([ bytes_to_long(xor(state[i][a], round_key[i][a])) for a in range(len(state[i]))])
+    for i in range(len(s)):
+        key.append([ bytes_to_long(xor(s[i][a], k[i][a])) for a in range(len(s[i]))])
     return key
-
 
 # cur_key = (add_round_key(state, round_key))
 # print(matrix2bytes(cur_key))
@@ -114,16 +112,18 @@ s_box = (
 # ]
 
 
+
 def sub_bytes(s, sbox=s_box):
     hexstate = []
     key = []
     for i in range(len(s)):
         hexstate += [[hex(a)[2:] for a in s[i]]]
+        print(hexstate)
         key += [[
-            sbox[ 16*int("0x0"+hexstate[i][a][0],16) + int("0x0"+hexstate[i][a][1],16) ] 
+            sbox[ 16*int("0x0"+hexstate[i][a][0],16) + int("0x0"+hexstate[i][a][1],16) ] if len(hexstate[i][a]) == 2
+            else sbox[ int("0x0"+hexstate[i][a][0],16) ]
             for a in range(len(hexstate[i]))
             ]]
-        # print(sbox[ int("0x0"+hexstate[i][0][0],16) ][ int("0x0"+hexstate[i][0][1],16) ])
     return key
 
 
