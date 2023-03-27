@@ -176,25 +176,39 @@ def inv_mix_columns(s):
         s[i][3] ^= v
 
     s = mix_columns(s)
-    print(s)
     return s
 
 
-state = [
-    [108, 106, 71, 86],
-    [96, 62, 38, 72],
-    [42, 184, 92, 209],
-    [94, 79, 8, 54],
-]
+# state = [
+#     [108, 106, 71, 86],
+#     [96, 62, 38, 72],
+#     [42, 184, 92, 209],
+#     [94, 79, 8, 54],
+# ]
 
 '''
 We've provided code to perform MixColumns and the forward ShiftRows operation. After implementing inv_shift_rows, take the state, run inv_mix_columns on it, then inv_shift_rows, convert to bytes and you will have your flag.
 '''
 
-key = (inv_shift_rows(inv_mix_columns(state)))
-print(matrix2bytes(key))
+# key = (inv_shift_rows(inv_mix_columns(state)))
+# print(matrix2bytes(key))
 
 
 # Bringing It All Together
+
+# file aes_decrypt.py
+
+#  Modes of Operation Starter
+import json
+import requests
+
+# data = {'temperature':'24.3'}
+# data_json = json.dumps(data)
+# payload = {'json_payload': data_json, 'apikey': 'YOUR_API_KEY_HERE'}
+r = requests.get('https://aes.cryptohack.org/block_cipher_starter/encrypt_flag/')
+encrypt_flag = (r.json()['ciphertext'])
+flag_in_hex = requests.get(f'https://aes.cryptohack.org/block_cipher_starter/decrypt/{encrypt_flag}/')
+flag = flag_in_hex.json()['plaintext']
+print(bytes.fromhex(flag).decode("utf-8"))
 
 
