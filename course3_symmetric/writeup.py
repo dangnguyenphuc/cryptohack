@@ -1,5 +1,11 @@
 from pwn import *
 from Crypto.Util.number import *
+import json
+import requests
+from Crypto.Cipher import AES
+import hashlib
+import random
+import threading
 #  Keyed Permutations
 
 '''
@@ -199,16 +205,73 @@ We've provided code to perform MixColumns and the forward ShiftRows operation. A
 # file aes_decrypt.py
 
 #  Modes of Operation Starter
-import json
-import requests
 
-# data = {'temperature':'24.3'}
-# data_json = json.dumps(data)
-# payload = {'json_payload': data_json, 'apikey': 'YOUR_API_KEY_HERE'}
-r = requests.get('https://aes.cryptohack.org/block_cipher_starter/encrypt_flag/')
-encrypt_flag = (r.json()['ciphertext'])
-flag_in_hex = requests.get(f'https://aes.cryptohack.org/block_cipher_starter/decrypt/{encrypt_flag}/')
-flag = flag_in_hex.json()['plaintext']
-print(bytes.fromhex(flag).decode("utf-8"))
+# r = requests.get('https://aes.cryptohack.org/block_cipher_starter/encrypt_flag/')
+# encrypt_flag = (r.json()['ciphertext'])
+# flag_in_hex = requests.get(f'https://aes.cryptohack.org/block_cipher_starter/decrypt/{encrypt_flag}/')
+# flag = flag_in_hex.json()['plaintext']
+# print(bytes.fromhex(flag).decode("utf-8"))
+
+# Passwords as Keys
+
+def decrypt(wordslist, ciphertext):
+    ciphertext = bytes.fromhex(ciphertext)
+    for w in wordslist:
+        key = bytes.fromhex(hashlib.md5(w.encode()).hexdigest())
+        cipher = AES.new(key, AES.MODE_ECB)
+        try:
+            decrypted = cipher.decrypt(ciphertext)
+            f.write(f"{str(decrypted)}\n")
+        except ValueError as e:
+            return {"error": str(e)}
 
 
+# def getFlag(wordslist, encrypt_flag):
+#     for w in wordslist:
+#         key = (hashlib.md5(w.encode()).hexdigest())
+#         flag_in_hex = requests.get(f'https://aes.cryptohack.org/passwords_as_keys/decrypt/{encrypt_flag}/{key}/')
+#         f.write(f"{(bytes.fromhex(flag_in_hex.json()['plaintext']))}\n")
+
+
+words = []
+with open("/usr/share/dict/words") as f:
+    words = [w.strip() for w in f.readlines()]
+        
+# r = requests.get('https://aes.cryptohack.org/passwords_as_keys/encrypt_flag/')
+# r = c92b7734070205bdf6c0087a751466ec13ae15e6f1bcdd3f3a535ec0f4bbae66
+encrypt_flag = 'c92b7734070205bdf6c0087a751466ec13ae15e6f1bcdd3f3a535ec0f4bbae66'
+
+
+space = int(len(words)/8)
+breakpoint_index = [space-1, 2*space-1, 3*space-1, 4*space-1, 5*space-1, 6*space-1, 7*space-1] 
+f = open("course3_symmetric/res.txt", "a")
+t1 = threading.Thread(target=decrypt, args=(words[0:breakpoint_index[0]],encrypt_flag))
+t2 = threading.Thread(target=decrypt, args=(words[breakpoint_index[0]:breakpoint_index[1]],encrypt_flag))
+t3 = threading.Thread(target=decrypt, args=(words[breakpoint_index[1]:breakpoint_index[2]],encrypt_flag))
+t4 = threading.Thread(target=decrypt, args=(words[breakpoint_index[2]:breakpoint_index[3]],encrypt_flag))
+t5 = threading.Thread(target=decrypt, args=(words[breakpoint_index[3]:breakpoint_index[4]],encrypt_flag))
+t6 = threading.Thread(target=decrypt, args=(words[breakpoint_index[4]:breakpoint_index[5]],encrypt_flag))
+t7 = threading.Thread(target=decrypt, args=(words[breakpoint_index[5]:breakpoint_index[6]],encrypt_flag))
+t8 = threading.Thread(target=decrypt, args=(words[breakpoint_index[6]:],encrypt_flag))
+
+# starting thread
+t1.start()
+t2.start()
+t3.start()
+t4.start()
+t5.start()
+t6.start()
+t7.start()
+t8.start()
+
+t1.join()
+t2.join()
+t3.join()
+t4.join()
+t5.join()
+t6.join()
+t7.join()
+t8.join()
+
+
+f.close()
