@@ -6,6 +6,12 @@ from Crypto.Cipher import AES
 import hashlib
 import random
 import threading
+from Crypto.Util.Padding import pad, unpad
+import time
+
+# hex byte_list
+byte_list = ['0'+hex(i)[2:] if len(hex(i)[2:]) == 1 else hex(i)[2:] for i in range(1,256)]
+
 #  Keyed Permutations
 
 '''
@@ -214,16 +220,16 @@ We've provided code to perform MixColumns and the forward ShiftRows operation. A
 
 # Passwords as Keys
 
-def decrypt(wordslist, ciphertext):
-    ciphertext = bytes.fromhex(ciphertext)
-    for w in wordslist:
-        key = bytes.fromhex(hashlib.md5(w.encode()).hexdigest())
-        cipher = AES.new(key, AES.MODE_ECB)
-        try:
-            decrypted = cipher.decrypt(ciphertext)
-            f.write(f"{str(decrypted)}\n")
-        except ValueError as e:
-            return {"error": str(e)}
+# def decrypt(wordslist, ciphertext):
+#     ciphertext = bytes.fromhex(ciphertext)
+#     for w in wordslist:
+#         key = bytes.fromhex(hashlib.md5(w.encode()).hexdigest())
+#         cipher = AES.new(key, AES.MODE_ECB)
+#         try:
+#             decrypted = cipher.decrypt(ciphertext)
+#             f.write(f"{str(decrypted)}\n")
+#         except ValueError as e:
+#             return {"error": str(e)}
 
 
 # def getFlag(wordslist, encrypt_flag):
@@ -233,45 +239,157 @@ def decrypt(wordslist, ciphertext):
 #         f.write(f"{(bytes.fromhex(flag_in_hex.json()['plaintext']))}\n")
 
 
-words = []
-with open("/usr/share/dict/words") as f:
-    words = [w.strip() for w in f.readlines()]
+# words = []
+# with open("/usr/share/dict/words") as f:
+#     words = [w.strip() for w in f.readlines()]
         
-# r = requests.get('https://aes.cryptohack.org/passwords_as_keys/encrypt_flag/')
-# r = c92b7734070205bdf6c0087a751466ec13ae15e6f1bcdd3f3a535ec0f4bbae66
-encrypt_flag = 'c92b7734070205bdf6c0087a751466ec13ae15e6f1bcdd3f3a535ec0f4bbae66'
+# # r = requests.get('https://aes.cryptohack.org/passwords_as_keys/encrypt_flag/')
+# # r = c92b7734070205bdf6c0087a751466ec13ae15e6f1bcdd3f3a535ec0f4bbae66
+# encrypt_flag = 'c92b7734070205bdf6c0087a751466ec13ae15e6f1bcdd3f3a535ec0f4bbae66'
 
 
-space = int(len(words)/8)
-breakpoint_index = [space-1, 2*space-1, 3*space-1, 4*space-1, 5*space-1, 6*space-1, 7*space-1] 
-f = open("course3_symmetric/res.txt", "a")
-t1 = threading.Thread(target=decrypt, args=(words[0:breakpoint_index[0]],encrypt_flag))
-t2 = threading.Thread(target=decrypt, args=(words[breakpoint_index[0]:breakpoint_index[1]],encrypt_flag))
-t3 = threading.Thread(target=decrypt, args=(words[breakpoint_index[1]:breakpoint_index[2]],encrypt_flag))
-t4 = threading.Thread(target=decrypt, args=(words[breakpoint_index[2]:breakpoint_index[3]],encrypt_flag))
-t5 = threading.Thread(target=decrypt, args=(words[breakpoint_index[3]:breakpoint_index[4]],encrypt_flag))
-t6 = threading.Thread(target=decrypt, args=(words[breakpoint_index[4]:breakpoint_index[5]],encrypt_flag))
-t7 = threading.Thread(target=decrypt, args=(words[breakpoint_index[5]:breakpoint_index[6]],encrypt_flag))
-t8 = threading.Thread(target=decrypt, args=(words[breakpoint_index[6]:],encrypt_flag))
+# space = int(len(words)/8)
+# breakpoint_index = [space-1, 2*space-1, 3*space-1, 4*space-1, 5*space-1, 6*space-1, 7*space-1] 
+# f = open("course3_symmetric/Password_as_key.txt", "a")
+# t1 = threading.Thread(target=decrypt, args=(words[0:breakpoint_index[0]],encrypt_flag))
+# t2 = threading.Thread(target=decrypt, args=(words[breakpoint_index[0]:breakpoint_index[1]],encrypt_flag))
+# t3 = threading.Thread(target=decrypt, args=(words[breakpoint_index[1]:breakpoint_index[2]],encrypt_flag))
+# t4 = threading.Thread(target=decrypt, args=(words[breakpoint_index[2]:breakpoint_index[3]],encrypt_flag))
+# t5 = threading.Thread(target=decrypt, args=(words[breakpoint_index[3]:breakpoint_index[4]],encrypt_flag))
+# t6 = threading.Thread(target=decrypt, args=(words[breakpoint_index[4]:breakpoint_index[5]],encrypt_flag))
+# t7 = threading.Thread(target=decrypt, args=(words[breakpoint_index[5]:breakpoint_index[6]],encrypt_flag))
+# t8 = threading.Thread(target=decrypt, args=(words[breakpoint_index[6]:],encrypt_flag))
 
-# starting thread
-t1.start()
-t2.start()
-t3.start()
-t4.start()
-t5.start()
-t6.start()
-t7.start()
-t8.start()
+# # starting thread
+# t1.start()
+# t2.start()
+# t3.start()
+# t4.start()
+# t5.start()
+# t6.start()
+# t7.start()
+# t8.start()
 
-t1.join()
-t2.join()
-t3.join()
-t4.join()
-t5.join()
-t6.join()
-t7.join()
-t8.join()
+# t1.join()
+# t2.join()
+# t3.join()
+# t4.join()
+# t5.join()
+# t6.join()
+# t7.join()
+# t8.join()
 
 
-f.close()
+# f.close()
+
+
+
+# ECB Oracle
+
+# explain in course3_symmetric/ECB_Oracle.txt
+
+# def get_pad(length):
+#     return byte_list[15 - length]
+
+# def get_cipher(s):
+#     r = requests.get(f'https://aes.cryptohack.org/ecb_oracle/encrypt/{s}/')
+#     return r.json()['ciphertext']
+
+# print(byte_list)
+
+# res = ""
+# res = "63627d"
+
+# res = '6e3675316e355f683437335f3363627d'
+# # for i in range(len(res)//2+1,26):
+
+# #     payload = "aa" * (7+i) 
+# #     if(i>=16): valid_last_block = get_cipher(payload)[-64:-32]
+# #     else: 
+# #         valid_last_block = get_cipher(payload)[-32:]
+
+# #     for item in byte_list:
+# #         if(i<=16):
+# #             plain = item + res +get_pad(i)*(16-i)
+# #         else:
+# #             plain = item + res[:-(i-16)*2]
+# #         print(plain)
+# #         last_block = get_cipher(plain)[:32]
+# #         if valid_last_block == last_block:
+# #             print(f'Found: {item}')
+# #             res = item+res
+# #             break
+
+# res = "70336e3675316e355f683437335f3363627d"
+
+# print(bytes.fromhex(res))
+
+
+# ECB CBC WTF
+
+# encrypt by CBC:
+'''
+input:
+    plaintext = t_1 t_2 ... t_n
+    key: key
+    initialization vector
+output: ciphertext = c_1 c_2 ... c_n
+encryption:
+    c_1 = encrypt (t_1 xor init. vector) by key
+    c_2 = encrypt (t_2 xor c_1) by key
+    c_3 = encrypt (t_3 xor c_2) by key
+    ...
+    c_n = encrypt (t_n xor c_(n-1) ) by key
+
+#### DECRYPTION IN CBC MODE:
+input:
+    ciphertext = c_1 c_2 ... c_n
+    key: key
+output: plaintext = t_1 t_2 ... t_n
+decryption:
+    t_1 = decrypt (c_1 xor init. vector) by key
+    t_2 = decrypt (c_2 xor c_1) by key
+    t_3 = decrypt (c_3 xor c_2) by key
+    ...
+    t_n = decrypt (c_n xor c_(n-1) ) by key
+'''
+# decrypt by ECB:
+''' 
+input:
+    ciphertext = c_1 c_2 ... c_n
+    key: key
+output: plaintext = t_1 t_2 ... t_n
+decryption:
+    t_1 = decrypt (c_1) by key
+    t_2 = decrypt (c_2) by key
+    t_3 = decrypt (c_3) by key
+    ...
+    t_n = decrypt (c_n) by key
+'''
+
+'''
+XOR: 
+    a XOR b = c -> c xor b = a and c xor a = b
+
+As we can see, CBC & ECB decryptions diff is just XOR.
+
+flow in this challenge:
+    t ------CBC encrypt------> [init.vec,c] ---------ECB decrypt--------> [block,t']
+
+    if we want flag: 
+    t ------CBC encrypt------> [init.vec,c] ---------CBC decrypt--------> [block,t]
+
+    We have: [block,t'] xor [init.vec,c] = [block,t], we just dont care the block.
+    -> flag = [block,t'] xor c
+'''
+re = requests.get("https://aes.cryptohack.org/ecbcbcwtf/encrypt_flag/")
+full_c = re.json()["ciphertext"]
+c = full_c[32:]    # init. vec is 16 bytes
+
+re = requests.get(f"https://aes.cryptohack.org/ecbcbcwtf/decrypt/{c}/")
+t = re.json()["plaintext"]
+flag = xor(bytes.fromhex(full_c), bytes.fromhex(t))
+
+
+print(flag)
+
