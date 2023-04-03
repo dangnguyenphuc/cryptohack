@@ -8,9 +8,17 @@ import random
 import threading
 from Crypto.Util.Padding import pad, unpad
 import time
+from datetime import datetime, timedelta
+import os
 
 # hex byte_list
 byte_list = ['0'+hex(i)[2:] if len(hex(i)[2:]) == 1 else hex(i)[2:] for i in range(1,256)]
+
+def string2hex(s):
+    return bytes.fromhex("".join([byte_list[ord(i)-1] for i in s]))
+
+
+
 
 #  Keyed Permutations
 
@@ -382,14 +390,47 @@ flow in this challenge:
     We have: [block,t'] xor [init.vec,c] = [block,t], we just dont care the block.
     -> flag = [block,t'] xor c
 '''
-re = requests.get("https://aes.cryptohack.org/ecbcbcwtf/encrypt_flag/")
-full_c = re.json()["ciphertext"]
-c = full_c[32:]    # init. vec is 16 bytes
+# re = requests.get("https://aes.cryptohack.org/ecbcbcwtf/encrypt_flag/")
+# full_c = re.json()["ciphertext"]
+# c = full_c[32:]    # init. vec is 16 bytes
 
-re = requests.get(f"https://aes.cryptohack.org/ecbcbcwtf/decrypt/{c}/")
-t = re.json()["plaintext"]
-flag = xor(bytes.fromhex(full_c), bytes.fromhex(t))
+# re = requests.get(f"https://aes.cryptohack.org/ecbcbcwtf/decrypt/{c}/")
+# t = re.json()["plaintext"]
+# flag = xor(bytes.fromhex(full_c), bytes.fromhex(t))
 
 
-print(flag)
+# print(flag)
 
+
+
+# Flipping Cookie 
+
+'''
+Get cookie: 
+248cd757f0488dccfa0bd08655545aa8 -> IV
+
+0b32f8dc246f167f0eca88ebc21d3057 -> admin=False;expi
+d2b6cd5e2359f8863d945bfe9f90d832 -> dont care
+'''
+
+'''
+we need to use IV to 
+t1 = c1 xor IV
+c1 new = t1 xor IV new
+
+IV new = IV xor [admin=False;expi] xor [admin=True;00000]
+-> c1_new = encrypt(admin=False;expi)[32:64] xor IV new
+'''
+
+re = requests.get("https://aes.cryptohack.org/flipping_cookie/get_cookie/")
+
+cipher = re.json()["cookie"]
+iv = cipher[:32]
+cookie = cipher[32:]
+
+iv_new = xor(string2hex("admin=True;00000"), string2hex("admin=False;expi"), bytes.fromhex(iv)).hex()
+
+print(iv_new)
+
+re = requests.get(f"https://aes.cryptohack.org/flipping_cookie/check_admin/{cookie}/{iv_new}/")
+print(re.json()["flag"])
