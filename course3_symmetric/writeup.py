@@ -10,12 +10,14 @@ from Crypto.Util.Padding import pad, unpad
 import time
 from datetime import datetime, timedelta
 import os
+from PIL import Image
+import numpy
 
 # hex byte_list
 byte_list = ['0'+hex(i)[2:] if len(hex(i)[2:]) == 1 else hex(i)[2:] for i in range(1,256)]
 
 def string2hex(s):
-    return bytes.fromhex("".join([byte_list[ord(i)-1] for i in s]))
+    return "".join([byte_list[ord(i)-1] for i in s])
 
 
 
@@ -422,15 +424,64 @@ IV new = IV xor [admin=False;expi] xor [admin=True;00000]
 -> c1_new = encrypt(admin=False;expi)[32:64] xor IV new
 '''
 
-re = requests.get("https://aes.cryptohack.org/flipping_cookie/get_cookie/")
+# re = requests.get("https://aes.cryptohack.org/flipping_cookie/get_cookie/")
 
-cipher = re.json()["cookie"]
-iv = cipher[:32]
-cookie = cipher[32:]
+# cipher = re.json()["cookie"]
+# iv = cipher[:32]
+# cookie = cipher[32:]
 
-iv_new = xor(string2hex("admin=True;00000"), string2hex("admin=False;expi"), bytes.fromhex(iv)).hex()
+# iv_new = xor(bytes.fromhex(string2hex("admin=True;00000")), bytes.fromhex(string2hex("admin=False;expi")), bytes.fromhex(iv)).hex()
 
-print(iv_new)
+# print(iv_new)
 
-re = requests.get(f"https://aes.cryptohack.org/flipping_cookie/check_admin/{cookie}/{iv_new}/")
-print(re.json()["flag"])
+# re = requests.get(f"https://aes.cryptohack.org/flipping_cookie/check_admin/{cookie}/{iv_new}/")
+# print(re.json()["flag"])
+
+
+# Symmetry
+
+''' 
+XOR: 
+    a XOR b = c -> c xor b = a and c xor a = b
+'''
+
+# re = requests.get("https://aes.cryptohack.org/symmetry/encrypt_flag/")
+# cipher = re.json()["ciphertext"]
+# iv = cipher[:32]
+# encrypt_flag = cipher[32:]
+
+# re = requests.get(f"https://aes.cryptohack.org/symmetry/encrypt/{encrypt_flag}/{iv}/")
+# flag = re.json()["ciphertext"]
+# print(bytes.fromhex(flag))
+
+
+
+# Bean Counter
+
+''' 
+PNG file exploit: https://www.nayuki.io/page/png-file-chunk-inspector
+First 16 bytes of PNG file are unchanged
+'''
+
+re = requests.get("https://aes.cryptohack.org/bean_counter/encrypt/")
+
+encrypt_flag = (re.json()["encrypted"])
+
+first_16byte = encrypt_flag[:32]
+
+# 89 50 4e 47 0d 0a 1a 0a
+# 00 00 00 0d 49 48 44 52
+
+flag_0 = "89504e470d0a1a0a0000000d49484452"
+
+nonce = xor(bytes.fromhex(flag_0),bytes.fromhex(first_16byte))
+
+res = ""
+res += flag_0
+
+for i in range(1,len(encrypt_flag)//32):
+    res += xor(nonce,bytes.fromhex(encrypt_flag[32*i:32*i+32])).hex()
+
+
+with open('course3_symmetric/bean_counter.png', 'wb') as fd:
+    fd.write(bytes.fromhex(res))
