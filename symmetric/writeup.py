@@ -13,6 +13,7 @@ import os
 from PIL import Image
 import numpy
 from Crypto.Cipher import DES3
+import zlib
 
 # hex byte_list
 byte_list = ['0'+hex(i)[2:] if len(hex(i)[2:]) == 1 else hex(i)[2:] for i in range(1,256)]
@@ -545,9 +546,16 @@ https://security.stackexchange.com/questions/6510/is-tdea-tripledes-invulnerable
 '''
 key = "0000000000000000ffffffffffffffff0000000000000000"
 
-re = requests.get(f"https://aes.cryptohack.org/triple_des/encrypt_flag/{key}/")
-cipher = re.json()['ciphertext']
+# re = requests.get(f"https://aes.cryptohack.org/triple_des/encrypt_flag/{key}/")
+# cipher = re.json()['ciphertext']
 
-re = requests.get(f"https://aes.cryptohack.org/triple_des/encrypt/{key}/{cipher}/")
-plain = bytes.fromhex(re.json()['ciphertext'])
-print(plain)
+# re = requests.get(f"https://aes.cryptohack.org/triple_des/encrypt/{key}/{cipher}/")
+# plain = bytes.fromhex(re.json()['ciphertext'])
+# print(plain)
+
+# CTRIME
+print(bytes.fromhex(string2hex("crypto{")))
+
+a = (zlib.compress(bytes.fromhex(string2hex("crypto{"))))
+
+print(zlib.decompress(a))
