@@ -21,7 +21,7 @@ def string2hex(s):
 
 
 
-
+# ------------------------------------------------------------------------------------------------------------
 #  Keyed Permutations
 
 '''
@@ -30,13 +30,14 @@ What is the mathematical term for a one-to-one correspondence?
 Solution: bijection
 '''
 
+# ------------------------------------------------------------------------------------------------------------
 # Resisting Bruteforce
 '''
 What is the name for the best single-key attack against AES?
 
 biclique
 '''
-
+# ------------------------------------------------------------------------------------------------------------
 # Structure of AES
 
 def bytes2matrix(text):
@@ -152,6 +153,7 @@ def sub_bytes(s, sbox=s_box):
 # key = (sub_bytes(state, sbox=inv_s_box))
 # print(matrix2bytes(key))
 
+# ------------------------------------------------------------------------------------------------------------
 # Diffusion through Permutation
 
 def shift_rows(s):
@@ -215,11 +217,12 @@ We've provided code to perform MixColumns and the forward ShiftRows operation. A
 # key = (inv_shift_rows(inv_mix_columns(state)))
 # print(matrix2bytes(key))
 
-
+# ------------------------------------------------------------------------------------------------------------
 # Bringing It All Together
 
 # file aes_decrypt.py
 
+# ------------------------------------------------------------------------------------------------------------
 #  Modes of Operation Starter
 
 # r = requests.get('https://aes.cryptohack.org/block_cipher_starter/encrypt_flag/')
@@ -228,6 +231,7 @@ We've provided code to perform MixColumns and the forward ShiftRows operation. A
 # flag = flag_in_hex.json()['plaintext']
 # print(bytes.fromhex(flag).decode("utf-8"))
 
+# ------------------------------------------------------------------------------------------------------------
 # Passwords as Keys
 
 # def decrypt(wordslist, ciphertext):
@@ -293,7 +297,7 @@ We've provided code to perform MixColumns and the forward ShiftRows operation. A
 # f.close()
 
 
-
+# ------------------------------------------------------------------------------------------------------------
 # ECB Oracle
 
 # explain in course3_symmetric/ECB_Oracle.txt
@@ -334,7 +338,7 @@ We've provided code to perform MixColumns and the forward ShiftRows operation. A
 
 # print(bytes.fromhex(res))
 
-
+# ------------------------------------------------------------------------------------------------------------
 # ECB CBC WTF
 
 # encrypt by CBC:
@@ -404,7 +408,7 @@ flow in this challenge:
 # print(flag)
 
 
-
+# ------------------------------------------------------------------------------------------------------------
 # Flipping Cookie 
 
 '''
@@ -437,7 +441,7 @@ IV new = IV xor [admin=False;expi] xor [admin=True;00000]
 # re = requests.get(f"https://aes.cryptohack.org/flipping_cookie/check_admin/{cookie}/{iv_new}/")
 # print(re.json()["flag"])
 
-
+# ------------------------------------------------------------------------------------------------------------
 # Symmetry
 
 ''' 
@@ -455,7 +459,7 @@ XOR:
 # print(bytes.fromhex(flag))
 
 
-
+# ------------------------------------------------------------------------------------------------------------
 # Bean Counter
 
 ''' 

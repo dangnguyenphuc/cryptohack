@@ -10,6 +10,8 @@
 ![alt text](img/progress_0.png)
 * 04/05/2023:
 ![alt text](img/pr1.png)
+* 06/05/2023:
+![alt text](img/pr2.png)
 ### ...
 
 ## Challenges:
