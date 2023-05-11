@@ -4,6 +4,7 @@ import hashlib
 import telnetlib
 import json
 from pwn import *
+from Crypto.Util.number import *
 
 HOST = "socket.cryptohack.org"
 
@@ -25,10 +26,16 @@ def decrypt_flag(shared_secret: int, iv: str, ciphertext: str):
     cipher = AES.new(key, AES.MODE_CBC, iv)
     plaintext = cipher.decrypt(ciphertext)
 
-    if is_pkcs7_padded(plaintext):
-        return unpad(plaintext, 16).decode('ascii')
-    else:
-        return plaintext.decode('ascii')
+    #===============
+    # Parameter Injection
+    # if is_pkcs7_padded(plaintext):
+    #     return unpad(plaintext, 16).decode('ascii')
+    # else:
+    #     return plaintext.decode('ascii')
+
+    # ==============
+    # Export-grade
+    return plaintext
 
 
 # ------------------------------------------------------------------------------------------------------------
@@ -192,4 +199,122 @@ So k = 0
 #     return
 
 # injection()
+
+
+# ------------------------------------------------------------------------------------------------------------
+# Export-grade
+PORT = 13379
+
+
+def secret_by_SageMath(p, g, A):
+    R = GF(p)
+    g = R(g)
+    A = R(A)   
+    return A.log(g)
+
+def ruin():
+    s = remote(HOST, PORT)
+    try:
+        recv = s.readuntil(": ")
+
+        message = json.loads(s.readline().strip().decode())
+        print(message)
+
+        supported = message["supported"]
+
+        message = json.dumps(
+            {
+                "supported": [supported[-1]]
+            })
+
+        s.sendlineafter(": ", message.encode())
+        recv = s.readline()
+
+        message = json.dumps(
+            {
+                "chosen": supported[-1]
+            })
+        s.sendlineafter(": ", message.encode())
+        s.readuntil(": ")
+        message = json.loads(s.readline().strip().decode())
+        print(message)
+
+        p = int(message["p"],16)
+        g = int(message["g"],16)
+        A = int(message["A"],16)
+
+
+        # p = 16007670376277647657
+        # g = 2
+        # A = 12572908971821654424
+
+        # a = secret_by_SageMath(p, g, A)
+        # a = 2560063736234422204
+
+        message = json.dumps(
+            {
+                "p": hex(p),
+                "g": hex(g),
+                "A": hex(p)
+            })
+        s.sendlineafter(": ", message.encode())
+        message = json.loads(s.readline().strip().decode())
+        print(message)
+        B = int(message["B"], 16)
+
+        # B = 7505388001506019908
+        message = json.dumps(
+            {
+                "B": hex(B)
+            })
+        s.sendlineafter(": ", message.encode())
+        message = json.loads(s.readline().strip().decode())
+        
+        iv = message["iv"]
+        encrypted_flag = message["encrypted_flag"]
+
+        # iv = "3e2c55331fe31f359b2161d06e954563"
+        # encrypted_flag = "83fae9e89da6f512d50e03f0bdd59b2dd4e42c012f4de3d7ed73664a5b5c5051"
+
+        # secret = pow(B, a, p)
+
+        # print(decrypt_flag(secret, iv, encrypted_flag))
+    finally:
+        s.close()
+    return p, g, A, B, iv, encrypted_flag
+
+
+# p, g, A, B, iv, encrypted_flag = ruin()
+
+
+def decrypt(shared_secret, iv, ciphertext):
+    # Derive AES key from shared secret
+    sha1 = hashlib.sha1()
+    sha1.update(str(shared_secret).encode())
+    key = sha1.digest()[:16]
+    # Decrypt flag
+    cipher = AES.new(key, AES.MODE_CBC, iv)
+    plaintext = cipher.decrypt(ciphertext)
+    return plaintext
+
+
+p = 16007670376277647657
+g = 2
+A = 10874835087207164016
+B = 4297078264925671801
+iv = "275692e1e9c66e4ad10342bc64cc6f1c"
+encrypted_flag = "77a810fec3acddb6781fdb8ed2cafd34bf233e2efea495641638922631e26c49"
+
+iv = bytes.fromhex(iv)
+encrypted_flag = bytes.fromhex(encrypted_flag)
+
+# a = secret_by_SageMath(p, g, A)
+# secret = pow(B, a, p)
+secret = 4522118087793640820
+
+print(decrypt(secret, iv, encrypted_flag))
+
+
+
+
 
