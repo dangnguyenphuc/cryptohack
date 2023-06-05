@@ -97,6 +97,32 @@ def scalarMultiplication(n, p, a = A, b = B, mod = MOD):
         loop_index = loop_index//2
     return res
 
-P = (2339, 2213)
-n = 7863
-print(scalarMultiplication(n, P))
+# P = (2339, 2213)
+# n = 7863
+# print(scalarMultiplication(n, P))
+
+# ------------------------------------------------------------------------------------------------------------
+#  Curves and Logs
+'''txt
+Alice generates a secret random integer nA and calculates QA = nAG
+
+Bob generates a secret random integer nB and calculates QB = nBG
+
+Alice sends Bob QA, and Bob sends Alice QB. Due to the hardness of ECDLP, an onlooker Eve is unable to calculate nA/B in reasonable time.
+
+Alice then calculates nAQB, and Bob calculates nBQA.
+
+Due to the associativity of scalar multiplication, S = nAQB = nBQA.
+
+Alice and Bob can use S as their shared secret.
+'''
+import hashlib
+
+
+QA = (815, 3190)
+nB = 1829
+
+res = (scalarMultiplication(nB, QA))
+
+hashObj = hashlib.sha1(bytes(str(res[0]),"ascii"))
+print(hashObj.hexdigest())
