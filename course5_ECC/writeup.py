@@ -119,10 +119,36 @@ Alice and Bob can use S as their shared secret.
 import hashlib
 
 
-QA = (815, 3190)
-nB = 1829
+# QA = (815, 3190)
+# nB = 1829
 
-res = (scalarMultiplication(nB, QA))
+# res = (scalarMultiplication(nB, QA))
 
-hashObj = hashlib.sha1(bytes(str(res[0]),"ascii"))
-print(hashObj.hexdigest())
+# hashObj = hashlib.sha1(bytes(str(res[0]),"ascii"))
+# print(hashObj.hexdigest())
+
+# ------------------------------------------------------------------------------------------------------------
+# Efficient Exchange
+from EfficientExchange import decrypt_flag
+
+def sqrt_modulo(x,p):
+    for i in range(1,p):
+        if (i*i) % p == x:
+            return (i, p-i)
+    return None
+
+q_x = 4726 
+nB = 6534
+
+Qysq = (q_x**3 + (A * q_x) + B) % MOD
+assert pow(Qysq, (MOD - 1) // 2, MOD) == 1 # Qysq is a quadratic residue of p
+Qy = pow(Qysq, (MOD + 1) // 4, MOD) # positive or negative versions both work
+
+QA = (q_x, Qy)
+S = scalarMultiplication(nB, QA)
+
+shared_secret = S[0] # we only want the x-coordinate of the shared secret
+iv = 'cd9da9f1c60925922377ea952afc212c'
+ciphertext = 'febcbe3a3414a730b125931dccf912d2239f3e969c4334d95ed0ec86f6449ad8'
+
+print(decrypt_flag(shared_secret, iv, ciphertext))
