@@ -62,6 +62,7 @@ Algorithm for the addition of two points: P + Q
 A = 497
 B = 1768
 MOD = 9739
+
 def pointAddition(p, q, a = A, b = B, mod = MOD):
     if p == (0,0): return q
     if q == (0,0): return p
@@ -73,11 +74,29 @@ def pointAddition(p, q, a = A, b = B, mod = MOD):
     y3 = (lam*(p[0]-x3) - p[1])%mod
     return (x3,y3)
 
-P = (493, 5564)
-Q = (1539, 4742) 
-R = (4403,5202)
+# P = (493, 5564)
+# Q = (1539, 4742) 
+# R = (4403,5202)
 
-res = pointAddition(pointAddition(pointAddition(P,P),Q),R)
-print(res)
+# res = pointAddition(pointAddition(pointAddition(P,P),Q),R)
+# print(res)
 
 # ------------------------------------------------------------------------------------------------------------
+# Scalar Multiplication
+
+def scalarMultiplication(n, p, a = A, b = B, mod = MOD):
+    q = p
+    res = (0,0)
+    loop_index = n
+    while loop_index > 0:
+        if loop_index % 2 == 1:
+            res = pointAddition(res, q)
+            loop_index -= 1
+            
+        q = pointAddition(q, q, a, b, mod)
+        loop_index = loop_index//2
+    return res
+
+P = (2339, 2213)
+n = 7863
+print(scalarMultiplication(n, P))
